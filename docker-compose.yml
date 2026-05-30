@@ -1,0 +1,47 @@
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${KOINOVIO_RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${KOINOVIO_RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${KOINOVIO_MANAGEMENT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${KOINOVIO_MANAGEMENT_DB_PASSWORD}
+      POSTGRES_DB: koinovioManagement
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: koinovio-billing
+    volumes:
+      - mongodb_data:/data/db
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  rabbitmq_data:

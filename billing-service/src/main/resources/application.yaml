@@ -16,7 +16,7 @@ spring:
 
   mail:
     host: localhost
-    port: 32768
+    port: 1025
     properties:
       mail:
         smtp:
