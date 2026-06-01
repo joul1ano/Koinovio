@@ -117,11 +117,11 @@ docker compose up -d
 
 This will start:
 
-RabbitMQ
-PostgreSQL
-MongoDB
-Mailpit
-```
+-RabbitMQ
+-PostgreSQL
+-MongoDB
+-Mailpit
+
 
 ### Step 2 - Run the services
 
