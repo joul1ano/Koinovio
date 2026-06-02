@@ -38,6 +38,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse.builder().message(ex.getMessage()).build());
     }
 
+    @ExceptionHandler(InvalidExpenseSubmissionException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidExpense(InvalidExpenseSubmissionException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder().message(ex.getMessage()).build());
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleInvalidJson(HttpMessageNotReadableException ex) {
         String message = "Invalid JSON input: " + ex.getMostSpecificCause().getMessage();

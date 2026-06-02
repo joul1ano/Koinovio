@@ -7,8 +7,8 @@ import com.koinovio.billing_service.model.Bill;
 import com.koinovio.billing_service.model.BillItem;
 import com.koinovio.billing_service.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,12 +16,18 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BillingService {
     private final BillRepository billRepository;
     private final PdfGeneratorService pdfService;
     private final EmailService emailService;
 
     public void processBill(BuildingExpensesMessage message) {
+        // in case something goes wrong and rabbitmq keeps requeuing a message
+        if(billRepository.existsByBuildingIdAndMonthAndYear(message.getBuildingId(), message.getMonth(), message.getYear())){
+            log.warn("Bills already processed for building {} {}/{} - Skipping", message.getBuildingId(),message.getMonth(),message.getYear());
+            return;
+        }
         List<Bill> bills = new ArrayList<>();
 
 

@@ -6,6 +6,7 @@ import com.koinovio.management_service.dto.building.CreateBuildingRequest;
 import com.koinovio.management_service.dto.messaging.ApartmentBillInfo;
 import com.koinovio.management_service.dto.messaging.BuildingExpensesMessage;
 import com.koinovio.management_service.dto.messaging.BuildingExpensesRequest;
+import com.koinovio.management_service.exceptions.InvalidExpenseSubmissionException;
 import com.koinovio.management_service.exceptions.ResourceNotFoundException;
 import com.koinovio.management_service.messaging.BillingMessageProducer;
 import com.koinovio.management_service.model.Apartment;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 
 
@@ -100,9 +100,17 @@ public class BuildingService {
 
     @Transactional
     public void submitExpenses(Long buildingId, BuildingExpensesRequest request){
-        //todo: make sure that the expenses are submited for a valid month
         Building building = buildingRepository.findById(buildingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Building not found"));
+
+        LocalDate lastSubmissionDate = building.getLastExpenseSubmission();
+        LocalDate newSubmissionDate = LocalDate.of(request.getYear(), request.getMonth(), 1);
+
+        if (lastSubmissionDate != null) { //meaning that this is not a newly added building
+            if (newSubmissionDate.isBefore(lastSubmissionDate) || newSubmissionDate.isEqual(lastSubmissionDate)){
+                throw new InvalidExpenseSubmissionException("Invalid submission date");
+            }
+        }
 
         List<ApartmentBillInfo> apartmentBillInfos = apartmentRepository.findAllByBuilding_Id(buildingId)
                 .stream().map(
